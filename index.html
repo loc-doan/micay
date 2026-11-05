@@ -3,92 +3,766 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🍜 Quán Mì Cay - Spicy Noodle Shop</title>
+  <title>Thiệp Mời Cưới 💍</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose:    #d4677f;
+      --gold:    #c9a84c;
+      --cream:   #fff9f0;
+      --dark:    #3a2a2a;
+      --light:   #f7e9e9;
     }
+
     body {
-      background: #1a0a00;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
       min-height: 100vh;
-      overflow: hidden;
-      font-family: 'Quicksand', 'Segoe UI', sans-serif;
-    }
-    #game-container {
-      position: relative;
-    }
-    canvas {
-      display: block;
-    }
-    #loading-screen {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: linear-gradient(135deg, #2d0a00, #8b1a00, #2d0a00);
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      z-index: 9999;
-      color: #FFE4B5;
+      overflow-x: hidden;
     }
-    #loading-screen .logo {
-      font-size: 48px;
-      font-weight: 900;
-      color: #FF6B35;
-      text-shadow: 0 0 30px #FF6B35, 0 4px 8px rgba(0,0,0,0.5);
-      margin-bottom: 8px;
-      letter-spacing: 2px;
+
+    /* ===== PETALS (background animation) ===== */
+    .petals-container {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
     }
-    #loading-screen .subtitle {
-      font-size: 18px;
-      color: #FFB347;
-      margin-bottom: 40px;
-      letter-spacing: 4px;
+    .petal {
+      position: absolute;
+      top: -40px;
+      font-size: 1.4rem;
+      animation: fall linear infinite;
+      opacity: 0.7;
     }
-    #loading-bar-container {
-      width: 300px;
-      height: 12px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 6px;
+    @keyframes fall {
+      0%   { transform: translateY(-40px) rotate(0deg); opacity: .8; }
+      100% { transform: translateY(110vh)  rotate(720deg); opacity: 0; }
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 48px 20px 24px;
+    }
+    header .subtitle { color: var(--rose); letter-spacing: 4px; font-size: .85rem; text-transform: uppercase; }
+    header h1 { font-size: clamp(2rem, 6vw, 3.4rem); color: var(--dark); margin: 8px 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; letter-spacing: 1px; }
+    header h1 span { color: var(--rose); font-style: italic; }
+    header .divider { margin: 10px auto; width: 120px; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-wrap {
+      position: relative; z-index: 1;
+      width: min(640px, 92vw);
+      margin: 0 auto 36px;
+      text-align: center;
+    }
+    .progress-label { font-size: .85rem; color: var(--rose); margin-bottom: 8px; letter-spacing: 1px; }
+    .progress-bar-bg {
+      background: #f0d9d9;
+      border-radius: 999px;
+      height: 14px;
       overflow: hidden;
-      border: 1px solid rgba(255,107,53,0.3);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,.1);
     }
-    #loading-bar {
+    .progress-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, #FF6B35, #FFB347);
-      border-radius: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--rose), var(--gold));
+      transition: width .6s cubic-bezier(.4,0,.2,1);
       width: 0%;
-      transition: width 0.3s ease;
-      box-shadow: 0 0 10px #FF6B35;
     }
-    #loading-text {
-      margin-top: 16px;
-      font-size: 14px;
-      color: rgba(255,228,181,0.6);
-      letter-spacing: 1px;
+    .steps-dots {
+      display: flex; justify-content: space-between; margin-top: 8px;
+    }
+    .step-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid #e4c5c5;
+      background: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: bold; color: #bbb;
+      transition: all .4s;
+    }
+    .step-dot.done   { background: var(--rose); border-color: var(--rose); color: white; transform: scale(1.15); }
+    .step-dot.active { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 0 4px rgba(201,168,76,.2); }
+
+    /* ===== CARDS ===== */
+    .card-wrapper {
+      position: relative; z-index: 1;
+      width: min(640px, 92vw);
+      margin: 0 auto 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .task-card {
+      background: white;
+      border-radius: 20px;
+      padding: 28px 32px;
+      box-shadow: 0 4px 24px rgba(212,103,127,.1);
+      border: 1.5px solid #f5dada;
+      position: relative;
+      overflow: hidden;
+      transition: transform .3s, box-shadow .3s;
+    }
+    .task-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--rose), var(--gold));
+    }
+    .task-card.locked {
+      opacity: .55;
+      pointer-events: none;
+      filter: blur(.5px);
+    }
+    .task-card.completed {
+      border-color: var(--rose);
+      background: linear-gradient(135deg, #fff9f0, #ffeef1);
+    }
+
+    .task-card:hover:not(.locked):not(.completed) { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(212,103,127,.18); }
+
+    .task-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .task-icon { font-size: 1.8rem; }
+    .task-title { font-size: 1.1rem; font-weight: bold; color: var(--dark); }
+    .task-desc  { font-size: .88rem; color: #888; margin-top: 2px; }
+    .badge-done {
+      margin-left: auto;
+      background: var(--rose); color: white;
+      border-radius: 999px; padding: 3px 12px;
+      font-size: .78rem; letter-spacing: 1px;
+      display: none;
+    }
+    .task-card.completed .badge-done { display: inline-block; }
+
+    /* ===== TASK 1 — Heart Click ===== */
+    .heart-area {
+      display: flex; justify-content: center; align-items: center;
+      gap: 8px; flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .heart-btn {
+      font-size: 1.9rem; cursor: pointer;
+      background: none; border: none;
+      transition: transform .2s;
+      user-select: none;
+    }
+    .heart-btn:hover  { transform: scale(1.3); }
+    .heart-btn.popped { animation: pop .4s; pointer-events: none; }
+    @keyframes pop {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.6); }
+      100% { transform: scale(1) rotate(15deg); }
+    }
+    #heart-counter { text-align: center; margin-top: 10px; font-size: .9rem; color: var(--rose); }
+
+    /* ===== TASK 2 — Puzzle Quote ===== */
+    .quote-slots {
+      display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0;
+      min-height: 48px; padding: 10px;
+      border: 2px dashed #e4c5c5;
+      border-radius: 12px;
+    }
+    .quote-slot {
+      background: #fff0f3; border: 1.5px solid var(--rose);
+      border-radius: 8px; padding: 5px 12px;
+      font-size: .9rem; color: var(--rose);
+    }
+    .quote-words { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .word-chip {
+      background: white; border: 1.5px solid #d4a0b0;
+      border-radius: 8px; padding: 5px 12px;
+      cursor: pointer; font-size: .88rem; color: var(--dark);
+      transition: all .2s; user-select: none;
+    }
+    .word-chip:hover  { background: var(--rose); color: white; border-color: var(--rose); }
+    .word-chip.used   { opacity: .3; pointer-events: none; }
+    #quote-feedback   { margin-top: 8px; font-size: .85rem; min-height: 1.2em; }
+
+    /* ===== TASK 3 — Spin the Ring ===== */
+    .ring-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 8px;
+    }
+    #ring-emoji {
+      font-size: 5rem; cursor: grab;
+      transition: transform .05s;
+      user-select: none;
+      display: inline-block;
+    }
+    #ring-emoji:active { cursor: grabbing; }
+    #spin-progress {
+      width: 180px; height: 10px;
+      background: #f0d9d9; border-radius: 999px; overflow: hidden;
+    }
+    #spin-fill {
+      height: 100%; background: linear-gradient(90deg, var(--rose), var(--gold));
+      border-radius: 999px; width: 0%; transition: width .15s;
+    }
+    #spin-label { font-size: .85rem; color: var(--rose); }
+
+    /* ===== TASK 4 — Love Oath ===== */
+    .oath-text {
+      font-style: italic; color: #9a6a6a; font-size: .92rem;
+      margin-bottom: 14px; line-height: 1.7;
+      border-left: 3px solid var(--rose); padding-left: 12px;
+    }
+    #oath-input {
+      width: 100%; padding: 10px 14px;
+      border: 1.5px solid #e4c5c5; border-radius: 10px;
+      font-size: .95rem; outline: none;
+      transition: border-color .3s;
+      font-family: inherit;
+    }
+    #oath-input:focus { border-color: var(--rose); }
+    #oath-btn {
+      margin-top: 10px;
+      background: linear-gradient(135deg, var(--rose), var(--gold));
+      color: white; border: none;
+      padding: 10px 28px; border-radius: 999px;
+      cursor: pointer; font-size: .95rem; font-family: inherit;
+      transition: opacity .3s, transform .2s;
+    }
+    #oath-btn:hover { opacity: .88; transform: scale(1.04); }
+    #oath-feedback  { margin-top: 8px; font-size: .85rem; min-height: 1.2em; color: var(--rose); }
+
+    /* ===== TASK 5 — Kiss the Seal ===== */
+    .seal-wrap { display: flex; justify-content: center; margin-top: 8px; }
+    #kiss-seal {
+      font-size: 6rem; cursor: pointer; user-select: none;
+      transition: transform .3s;
+      display: inline-block;
+    }
+    #kiss-seal:hover { transform: scale(1.1) rotate(-5deg); }
+    #kiss-label { text-align: center; margin-top: 8px; font-size: .88rem; color: var(--rose); }
+
+    /* ===== INVITATION REVEAL ===== */
+    #invitation-section {
+      display: none;
+      position: relative; z-index: 1;
+      width: min(680px, 92vw);
+      margin: 0 auto 80px;
+      text-align: center;
+      animation: fadeUp .8s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    #invitation-section h2 {
+      font-size: 1.8rem; color: var(--rose); margin-bottom: 8px;
+      font-family: 'Cormorant Garamond', serif; font-weight: 600;
+    }
+    #invitation-section p { color: #9a6a6a; margin-bottom: 24px; font-style: italic; }
+    .invite-frame {
+      border: 3px solid var(--gold);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(201,168,76,.25);
+      position: relative;
+    }
+    .invite-frame img {
+      width: 100%;
+      display: block;
+    }
+    .invite-ribbon {
+      position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--gold), #e8c96a);
+      color: white; padding: 4px 24px;
+      font-size: .78rem; letter-spacing: 2px;
+      border-radius: 0 0 12px 12px;
+      text-transform: uppercase;
+    }
+    .download-btn {
+      display: inline-block; margin-top: 20px;
+      background: linear-gradient(135deg, var(--rose), var(--gold));
+      color: white; border: none;
+      padding: 13px 36px; border-radius: 999px;
+      cursor: pointer; font-size: 1rem; font-family: inherit;
+      text-decoration: none;
+      transition: opacity .3s, transform .2s;
+      box-shadow: 0 6px 20px rgba(212,103,127,.35);
+    }
+    .download-btn:hover { opacity: .88; transform: scale(1.04); }
+
+    /* ===== CONFETTI ===== */
+    #confetti-canvas {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 9999;
+    }
+
+    /* ===== TOAST ===== */
+    #toast {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--dark); color: white;
+      padding: 12px 24px; border-radius: 999px;
+      font-size: .9rem; z-index: 999;
+      transition: transform .4s cubic-bezier(.4,0,.2,1);
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ===== FOOTER ===== */
+    footer {
+      position: relative; z-index: 1;
+      text-align: center; padding: 24px;
+      font-size: .78rem; color: #bbb; letter-spacing: 1px;
     }
   </style>
 </head>
 <body>
-  <div id="loading-screen">
-    <div class="logo">🍜 QUÁN MÌ CAY</div>
-    <div class="subtitle">SPICY NOODLE SHOP</div>
-    <div id="loading-bar-container">
-      <div id="loading-bar"></div>
-    </div>
-    <div id="loading-text">Đang tải game...</div>
+
+<!-- Falling petals -->
+<div class="petals-container" id="petals"></div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- Toast notification -->
+<div id="toast">🌸 Bước hoàn thành!</div>
+
+<!-- Header -->
+<header>
+  <p class="subtitle">✨ Chúng tôi trân trọng kính mời ✨</p>
+  <h1>Thiệp Mời <span>Hôn Lễ</span></h1>
+  <div class="divider"></div>
+  <p style="color:#9a6a6a; font-style:italic; margin-top:8px;">
+    Hãy thực hiện các bước nhỏ bên dưới để mở thiệp cưới của chúng tôi 💕
+  </p>
+</header>
+
+<!-- Progress -->
+<div class="progress-wrap">
+  <div class="progress-label">Tiến độ: <span id="progress-text">0 / 5</span> bước</div>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-fill"></div></div>
+  <div class="steps-dots">
+    <div class="step-dot active" id="dot-1">1</div>
+    <div class="step-dot" id="dot-2">2</div>
+    <div class="step-dot" id="dot-3">3</div>
+    <div class="step-dot" id="dot-4">4</div>
+    <div class="step-dot" id="dot-5">5</div>
   </div>
-  <div id="game-container"></div>
-  <script type="module" src="/src/main.js"></script>
+</div>
+
+<!-- Task Cards -->
+<div class="card-wrapper">
+
+  <!-- TASK 1: Tap Hearts -->
+  <div class="task-card" id="card-1">
+    <div class="task-header">
+      <span class="task-icon">💖</span>
+      <div>
+        <div class="task-title">Bước 1 — Chạm vào những trái tim</div>
+        <div class="task-desc">Nhấn vào tất cả 6 trái tim để gửi yêu thương!</div>
+      </div>
+      <span class="badge-done">✓ Xong</span>
+    </div>
+    <div class="heart-area" id="heart-area"></div>
+    <div id="heart-counter">❤️ Còn 6 trái tim chờ bạn chạm vào…</div>
+  </div>
+
+  <!-- TASK 2: Quote Puzzle -->
+  <div class="task-card locked" id="card-2">
+    <div class="task-header">
+      <span class="task-icon">💬</span>
+      <div>
+        <div class="task-title">Bước 2 — Ghép câu tình yêu</div>
+        <div class="task-desc">Sắp xếp các từ thành câu hoàn chỉnh về tình yêu!</div>
+      </div>
+      <span class="badge-done">✓ Xong</span>
+    </div>
+    <div class="quote-slots" id="quote-slots">
+      <span style="color:#ccc; font-style:italic; font-size:.85rem;">Nhấn các từ bên dưới để ghép câu…</span>
+    </div>
+    <div class="quote-words" id="quote-words"></div>
+    <div id="quote-feedback"></div>
+  </div>
+
+  <!-- TASK 3: Spin Ring -->
+  <div class="task-card locked" id="card-3">
+    <div class="task-header">
+      <span class="task-icon">💍</span>
+      <div>
+        <div class="task-title">Bước 3 — Xoay nhẫn cưới</div>
+        <div class="task-desc">Giữ chuột và kéo tròn chiếc nhẫn để tích năng lượng yêu thương!</div>
+      </div>
+      <span class="badge-done">✓ Xong</span>
+    </div>
+    <div class="ring-wrap">
+      <div id="ring-emoji">💍</div>
+      <div id="spin-progress"><div id="spin-fill"></div></div>
+      <div id="spin-label">Hãy xoay nhẫn! (0%)</div>
+    </div>
+  </div>
+
+  <!-- TASK 4: Love Oath -->
+  <div class="task-card locked" id="card-4">
+    <div class="task-header">
+      <span class="task-icon">🌹</span>
+      <div>
+        <div class="task-title">Bước 4 — Lời nguyện yêu thương</div>
+        <div class="task-desc">Gõ lời chúc mừng vào ô bên dưới rồi nhấn gửi!</div>
+      </div>
+      <span class="badge-done">✓ Xong</span>
+    </div>
+    <div class="oath-text">
+      "Tình yêu không phải nhìn nhau mà là cùng nhìn về một hướng."
+    </div>
+    <input id="oath-input" placeholder="Nhập lời chúc của bạn tại đây… (ít nhất 10 ký tự)" maxlength="200" />
+    <br>
+    <button id="oath-btn" onclick="submitOath()">💌 Gửi lời chúc</button>
+    <div id="oath-feedback"></div>
+  </div>
+
+  <!-- TASK 5: Kiss the Seal -->
+  <div class="task-card locked" id="card-5">
+    <div class="task-header">
+      <span class="task-icon">💋</span>
+      <div>
+        <div class="task-title">Bước 5 — Đóng dấu phong bì</div>
+        <div class="task-desc">Nhấp vào phong bì để đóng dấu và mở thiệp cưới!</div>
+      </div>
+      <span class="badge-done">✓ Xong</span>
+    </div>
+    <div class="seal-wrap">
+      <div id="kiss-seal" onclick="sealEnvelope()">💌</div>
+    </div>
+    <div id="kiss-label">Nhấp vào phong bì để đóng dấu…</div>
+  </div>
+
+</div><!-- /card-wrapper -->
+
+<!-- Invitation Reveal -->
+<div id="invitation-section">
+  <h2>🎊 Thiệp Cưới Của Chúng Tôi!</h2>
+  <p>Cảm ơn bạn đã dành tình yêu thương để mở thiệp. Chúng tôi chờ đón bạn! 💕</p>
+  <div class="invite-frame">
+    <div class="invite-ribbon">💍 Wedding Invitation 💍</div>
+    <img src="src/wedding-invitation.png" alt="Thiệp Mời Cưới" id="invite-img" />
+  </div>
+  <br>
+  <a class="download-btn" href="src/wedding-invitation.png" download="ThiepMoiCuoi.png">
+    💾 Tải Thiệp Về
+  </a>
+</div>
+
+<!-- Footer -->
+<footer>Made with 💕 for Minh Khoa &amp; Thanh Hà · 2026</footer>
+
+<script>
+/* ===================== PETALS ===================== */
+const petalContainer = document.getElementById('petals');
+const petalEmojis = ['🌸','🌹','🌺','💮','🌷','✨','💕'];
+for (let i = 0; i < 20; i++) {
+  const p = document.createElement('div');
+  p.classList.add('petal');
+  p.textContent = petalEmojis[Math.floor(Math.random() * petalEmojis.length)];
+  p.style.left = Math.random() * 100 + 'vw';
+  p.style.animationDuration = (6 + Math.random() * 10) + 's';
+  p.style.animationDelay   = -(Math.random() * 15) + 's';
+  p.style.fontSize = (.8 + Math.random() * 1.2) + 'rem';
+  petalContainer.appendChild(p);
+}
+
+/* ===================== PROGRESS ===================== */
+let completedSteps = 0;
+const TOTAL = 5;
+
+function updateProgress() {
+  document.getElementById('progress-text').textContent = `${completedSteps} / ${TOTAL}`;
+  document.getElementById('prog-fill').style.width = (completedSteps / TOTAL * 100) + '%';
+}
+
+function completeStep(n) {
+  if (completedSteps >= n) return;
+  completedSteps = n;
+  updateProgress();
+  // Mark dots
+  for (let i = 1; i <= n; i++) {
+    document.getElementById(`dot-${i}`).classList.add('done');
+    document.getElementById(`dot-${i}`).classList.remove('active');
+  }
+  document.getElementById(`card-${n}`).classList.add('completed');
+  // Unlock next
+  if (n < TOTAL) {
+    document.getElementById(`card-${n+1}`).classList.remove('locked');
+    document.getElementById(`dot-${n+1}`).classList.add('active');
+  }
+  showToast(`✅ Bước ${n} hoàn thành! ${n < TOTAL ? 'Tiếp tục bước tiếp theo~' : '🎉 Tất cả xong rồi!'}`);
+  if (n === TOTAL) setTimeout(revealInvitation, 1000);
+}
+
+/* ===================== TOAST ===================== */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ===================== TASK 1 — Hearts ===================== */
+let heartsPopped = 0;
+const heartArea = document.getElementById('heart-area');
+for (let i = 0; i < 6; i++) {
+  const btn = document.createElement('button');
+  btn.classList.add('heart-btn');
+  btn.textContent = ['💖','💗','💓','💞','💝','❤️'][i];
+  btn.onclick = function() {
+    if (btn.classList.contains('popped')) return;
+    btn.classList.add('popped');
+    heartsPopped++;
+    document.getElementById('heart-counter').textContent =
+      heartsPopped < 6
+        ? `💫 Còn ${6 - heartsPopped} trái tim nữa…`
+        : '🎉 Tuyệt vời! Bạn đã chạm vào tất cả trái tim!';
+    if (heartsPopped === 6) setTimeout(() => completeStep(1), 500);
+  };
+  heartArea.appendChild(btn);
+}
+
+/* ===================== TASK 2 — Quote Puzzle ===================== */
+const correctQuote = ['Yêu', 'là', 'cho', 'đi', 'tất', 'cả', 'trái tim'];
+const shuffled    = [...correctQuote].sort(() => Math.random() - .5);
+let selectedWords = [];
+
+function renderQuoteWords() {
+  const wContainer = document.getElementById('quote-words');
+  wContainer.innerHTML = '';
+  shuffled.forEach((w, idx) => {
+    const chip = document.createElement('div');
+    chip.classList.add('word-chip');
+    chip.textContent = w;
+    chip.dataset.idx = idx;
+    chip.onclick = () => selectWord(chip, w, idx);
+    wContainer.appendChild(chip);
+  });
+}
+
+function selectWord(chip, word, idx) {
+  if (chip.classList.contains('used')) return;
+  chip.classList.add('used');
+  selectedWords.push({ word, idx });
+  renderSlots();
+  checkQuote();
+}
+
+function renderSlots() {
+  const slots = document.getElementById('quote-slots');
+  if (selectedWords.length === 0) {
+    slots.innerHTML = '<span style="color:#ccc;font-style:italic;font-size:.85rem;">Nhấn các từ bên dưới để ghép câu…</span>';
+    return;
+  }
+  slots.innerHTML = '';
+  selectedWords.forEach((item, si) => {
+    const s = document.createElement('div');
+    s.classList.add('quote-slot');
+    s.textContent = item.word;
+    s.style.cursor = 'pointer';
+    s.title = 'Nhấn để xóa';
+    s.onclick = () => removeWord(si);
+    slots.appendChild(s);
+  });
+}
+
+function removeWord(si) {
+  const removed = selectedWords.splice(si, 1)[0];
+  document.querySelectorAll('.word-chip').forEach(c => {
+    if (parseInt(c.dataset.idx) === removed.idx) c.classList.remove('used');
+  });
+  renderSlots();
+  document.getElementById('quote-feedback').textContent = '';
+}
+
+function checkQuote() {
+  if (selectedWords.length < correctQuote.length) return;
+  const attempt = selectedWords.map(x => x.word).join(' ');
+  const correct  = correctQuote.join(' ');
+  const fb = document.getElementById('quote-feedback');
+  if (attempt === correct) {
+    fb.style.color = 'var(--rose)';
+    fb.textContent = '🌹 Đúng rồi! "Yêu là cho đi tất cả trái tim" 💕';
+    setTimeout(() => completeStep(2), 600);
+  } else {
+    fb.style.color = '#c0392b';
+    fb.textContent = '❌ Chưa đúng thứ tự! Thử lại nhé~';
+    setTimeout(() => {
+      selectedWords = [];
+      document.querySelectorAll('.word-chip').forEach(c => c.classList.remove('used'));
+      renderSlots();
+      fb.textContent = '';
+    }, 1200);
+  }
+}
+
+renderQuoteWords();
+
+/* ===================== TASK 3 — Ring Spin ===================== */
+let spinAngle   = 0;
+let spinTotal   = 0;
+let spinning    = false;
+let lastAngle   = null;
+const ringEl    = document.getElementById('ring-emoji');
+const spinFill  = document.getElementById('spin-fill');
+const spinLabel = document.getElementById('spin-label');
+const GOAL_DEG  = 720; // 2 full rotations
+
+function getRingCenter() {
+  const r = ringEl.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}
+
+function getAngle(cx, cy, px, py) {
+  return Math.atan2(py - cy, px - cx) * 180 / Math.PI;
+}
+
+ringEl.addEventListener('mousedown', e => { spinning = true; lastAngle = null; e.preventDefault(); });
+document.addEventListener('mouseup',   () => { spinning = false; lastAngle = null; });
+document.addEventListener('mousemove', e => {
+  if (!spinning || document.getElementById('card-3').classList.contains('completed')) return;
+  const c = getRingCenter();
+  const a = getAngle(c.x, c.y, e.clientX, e.clientY);
+  if (lastAngle !== null) {
+    let diff = a - lastAngle;
+    if (diff >  180) diff -= 360;
+    if (diff < -180) diff += 360;
+    spinTotal += Math.abs(diff);
+    spinAngle += diff;
+    ringEl.style.transform = `rotate(${spinAngle}deg)`;
+    const pct = Math.min(100, spinTotal / GOAL_DEG * 100);
+    spinFill.style.width = pct + '%';
+    spinLabel.textContent = `Đang xoay nhẫn… (${Math.round(pct)}%)`;
+    if (spinTotal >= GOAL_DEG) {
+      spinning = false;
+      spinLabel.textContent = '💍 Nhẫn đã sạc đầy năng lượng yêu thương!';
+      setTimeout(() => completeStep(3), 500);
+    }
+  }
+  lastAngle = a;
+});
+
+// Touch support for ring
+ringEl.addEventListener('touchstart', e => { spinning = true; lastAngle = null; e.preventDefault(); }, { passive: false });
+document.addEventListener('touchend',   () => { spinning = false; lastAngle = null; });
+document.addEventListener('touchmove', e => {
+  if (!spinning || document.getElementById('card-3').classList.contains('completed')) return;
+  const touch = e.touches[0];
+  const c = getRingCenter();
+  const a = getAngle(c.x, c.y, touch.clientX, touch.clientY);
+  if (lastAngle !== null) {
+    let diff = a - lastAngle;
+    if (diff >  180) diff -= 360;
+    if (diff < -180) diff += 360;
+    spinTotal += Math.abs(diff);
+    spinAngle += diff;
+    ringEl.style.transform = `rotate(${spinAngle}deg)`;
+    const pct = Math.min(100, spinTotal / GOAL_DEG * 100);
+    spinFill.style.width = pct + '%';
+    spinLabel.textContent = `Đang xoay nhẫn… (${Math.round(pct)}%)`;
+    if (spinTotal >= GOAL_DEG) {
+      spinning = false;
+      spinLabel.textContent = '💍 Nhẫn đã sạc đầy năng lượng yêu thương!';
+      setTimeout(() => completeStep(3), 500);
+    }
+  }
+  lastAngle = a;
+}, { passive: false });
+
+/* ===================== TASK 4 — Oath ===================== */
+function submitOath() {
+  const val = document.getElementById('oath-input').value.trim();
+  const fb  = document.getElementById('oath-feedback');
+  if (val.length < 10) {
+    fb.style.color = '#c0392b';
+    fb.textContent = '💬 Lời chúc quá ngắn — hãy thêm chút tình cảm nào!';
+    return;
+  }
+  fb.style.color = 'var(--rose)';
+  fb.textContent = `🌹 Cảm ơn lời chúc của bạn: "${val.substring(0,40)}${val.length>40?'…':''}"`;
+  document.getElementById('oath-input').disabled = true;
+  document.getElementById('oath-btn').disabled   = true;
+  setTimeout(() => completeStep(4), 600);
+}
+document.getElementById('oath-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitOath();
+});
+
+/* ===================== TASK 5 — Seal ===================== */
+let kisses = 0;
+function sealEnvelope() {
+  if (document.getElementById('card-5').classList.contains('completed')) return;
+  kisses++;
+  const emojis = ['💌','💋','💌','💖','💌','🎀','💍'];
+  document.getElementById('kiss-seal').textContent = emojis[kisses % emojis.length];
+  document.getElementById('kiss-label').textContent =
+    kisses < 3 ? `Nhấp thêm ${3 - kisses} lần nữa để đóng dấu! 💋` : '💌 Phong bì đã được đóng dấu tình yêu!';
+  if (kisses >= 3) {
+    document.getElementById('kiss-seal').textContent = '📮';
+    setTimeout(() => completeStep(5), 500);
+  }
+}
+
+/* ===================== REVEAL ===================== */
+function revealInvitation() {
+  const sec = document.getElementById('invitation-section');
+  sec.style.display = 'block';
+  sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  launchConfetti();
+}
+
+/* ===================== CONFETTI ===================== */
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors   = ['#d4677f','#c9a84c','#f4b8c7','#fff','#a8d8a8','#f9e4b7'];
+  const particles = Array.from({ length: 160 }, () => ({
+    x: Math.random() * canvas.width,
+    y: -20 - Math.random() * 200,
+    r: 4 + Math.random() * 7,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    dx: (Math.random() - .5) * 3,
+    dy: 2 + Math.random() * 5,
+    rot: Math.random() * 360,
+    drot: (Math.random() - .5) * 6,
+    shape: Math.random() > .5 ? 'rect' : 'circle',
+    alpha: 1
+  }));
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'rect') ctx.fillRect(-p.r / 2, -p.r * 1.5, p.r, p.r * 2.5);
+      else { ctx.beginPath(); ctx.arc(0, 0, p.r / 2, 0, Math.PI * 2); ctx.fill(); }
+      ctx.restore();
+      p.x   += p.dx;
+      p.y   += p.dy;
+      p.rot += p.drot;
+      p.alpha = Math.max(0, 1 - frame / 200);
+    });
+    frame++;
+    if (frame < 220) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+</script>
 </body>
 </html>
 
