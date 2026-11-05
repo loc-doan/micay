@@ -196,6 +196,7 @@
       transition: transform .05s;
       user-select: none;
       display: inline-block;
+      touch-action: none;
     }
     #ring-emoji:active { cursor: grabbing; }
     #spin-progress {
@@ -306,6 +307,10 @@
       font-size: .9rem; z-index: 999;
       transition: transform .4s cubic-bezier(.4,0,.2,1);
       white-space: nowrap;
+      max-width: 90vw;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.4;
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
 
@@ -314,6 +319,113 @@
       position: relative; z-index: 1;
       text-align: center; padding: 24px;
       font-size: .78rem; color: #bbb; letter-spacing: 1px;
+    }
+
+    /* ===== MOBILE — ≤ 480px ===== */
+    @media (max-width: 480px) {
+      header {
+        padding: 32px 16px 16px;
+      }
+      header .subtitle {
+        font-size: .75rem;
+        letter-spacing: 2px;
+      }
+      header p[style] {
+        font-size: .85rem;
+      }
+
+      .progress-wrap,
+      .card-wrapper {
+        width: 94vw;
+      }
+
+      .step-dot {
+        width: 24px; height: 24px;
+        font-size: .68rem;
+      }
+
+      .task-card {
+        padding: 20px 16px;
+        border-radius: 16px;
+      }
+      .task-title { font-size: 1rem; }
+      .task-desc  { font-size: .82rem; }
+      .task-icon  { font-size: 1.5rem; }
+      .badge-done { font-size: .72rem; padding: 2px 10px; }
+
+      /* Hearts — bigger tap target on mobile */
+      .heart-btn  { font-size: 2.4rem; padding: 4px; }
+      .heart-area { gap: 10px; }
+
+      /* Quote chips — easier to tap */
+      .word-chip  { font-size: .92rem; padding: 8px 14px; }
+      .quote-slot { font-size: .92rem; padding: 7px 12px; }
+      .quote-slots { min-height: 56px; gap: 6px; }
+
+      /* Ring — slightly smaller but still comfy */
+      #ring-emoji { font-size: 4.2rem; }
+      #spin-progress { width: 150px; }
+
+      /* Oath input — 16px prevents iOS zoom-in on focus */
+      #oath-input {
+        font-size: 16px;
+        padding: 12px 14px;
+      }
+      #oath-btn {
+        width: 100%;
+        padding: 13px 20px;
+        font-size: .95rem;
+      }
+
+      /* Seal */
+      #kiss-seal { font-size: 5rem; }
+
+      /* Invitation reveal */
+      #invitation-section {
+        width: 94vw;
+      }
+      #invitation-section h2 { font-size: 1.4rem; }
+      .invite-ribbon { font-size: .68rem; padding: 4px 16px; }
+      .download-btn  { width: 100%; text-align: center; padding: 14px 20px; }
+
+      /* Toast */
+      #toast { bottom: 20px; font-size: .82rem; padding: 10px 18px; }
+    }
+
+    /* ===== TABLET — 481px – 768px ===== */
+    @media (min-width: 481px) and (max-width: 768px) {
+      header { padding: 40px 20px 20px; }
+
+      .task-card { padding: 24px 24px; }
+
+      /* Oath input — 16px prevents iOS zoom */
+      #oath-input { font-size: 16px; }
+
+      #oath-btn { width: 100%; padding: 12px 20px; }
+
+      .download-btn { width: 100%; text-align: center; }
+    }
+
+    /* ===== TOUCH DEVICE — disable hover-lift (avoids sticky hover) ===== */
+    @media (hover: none) {
+      .task-card:hover:not(.locked):not(.completed) {
+        transform: none;
+        box-shadow: 0 4px 24px rgba(212,103,127,.1);
+      }
+      .heart-btn:hover  { transform: none; }
+      .word-chip:hover  { background: white; color: var(--dark); border-color: #d4a0b0; }
+      #kiss-seal:hover  { transform: none; }
+      .download-btn:hover { opacity: 1; transform: none; }
+    }
+
+    /* ===== SAFE AREA (iPhone notch / home bar) ===== */
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+      footer {
+        padding-bottom: calc(24px + env(safe-area-inset-bottom));
+      }
+      #toast {
+        bottom: calc(20px + env(safe-area-inset-bottom));
+      }
     }
   </style>
 </head>
@@ -391,7 +503,7 @@
       <span class="task-icon">💍</span>
       <div>
         <div class="task-title">Bước 3 — Xoay nhẫn cưới</div>
-        <div class="task-desc">Giữ chuột và kéo tròn chiếc nhẫn để tích năng lượng yêu thương!</div>
+        <div class="task-desc">Giữ & kéo tròn chiếc nhẫn để tích năng lượng yêu thương!</div>
       </div>
       <span class="badge-done">✓ Xong</span>
     </div>
